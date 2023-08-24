@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextFunction, Request, Response } from 'express';
-import { TokenMustStillBeValid } from './rules/rules.module';
 import AppException from '../../../exceptions/AppException';
 import moment from 'moment';
 import prisma from '../../../database/model.module';
 import httpStatus from 'http-status';
 import EncryptionService from '../../../services/Encryption.service';
+import { VerificationStatus } from '@prisma/client';
 
 export default class VerifyEmailClass {
   constructor(private readonly encryptionService: EncryptionService) {}
@@ -29,9 +29,17 @@ export default class VerifyEmailClass {
         },
       });
 
-      if (!email_verification) return TokenMustStillBeValid(next);
+      if (!email_verification) throw new Error(`Oops!, invalid otp`);
       if (email_verification.validUntil < moment().utc().toDate())
         throw new Error(`Oops!, your token has expired`);
+
+      await prisma.user.update({
+        where: { id: email_verification.user_id },
+        data: {
+          verification: VerificationStatus.verified,
+        },
+        select: null,
+      });
 
       return res.status(httpStatus.OK).json({
         status: `success`,

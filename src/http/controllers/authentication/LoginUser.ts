@@ -32,7 +32,10 @@ export default class LoginUser {
         throw new Error(`Oops!, email has not been verified`);
       const token = await this.authService.loginUser(_userExists);
       return res.status(httpStatus.CREATED).json({
-        user: _userExists,
+        user: HelperClass.removeUnwantedProperties(_userExists, [
+          'password',
+          'deleted_at',
+        ]),
         token,
       });
     } catch (err: unknown) {

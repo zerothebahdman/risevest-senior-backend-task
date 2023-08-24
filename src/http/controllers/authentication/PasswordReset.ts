@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import AppException from '../../../exceptions/AppException';
 import EmailService from '../../../services/Email.service';
-import TokenMustStillBeValid from './rules/TokenMustStillBeValid';
 import moment from 'moment';
 import EncryptionService from '../../../services/Encryption.service';
 import prisma from '../../../database/model.module';
@@ -62,7 +61,7 @@ export default class PasswordReset {
         where: { token: hashedToken },
       });
 
-      if (!password_reset) return TokenMustStillBeValid(next);
+      if (!password_reset) throw new Error(`Oops!, invalid token`);
       if (password_reset.validUntil < moment().utc().toDate())
         throw new Error(`Oops!, your token has expired`);
       const hashedPassword = await this.encryptionService.hashPassword(
