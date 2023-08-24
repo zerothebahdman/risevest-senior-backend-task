@@ -1,10 +1,10 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import {
   createUser,
-  verifyUserEmail,
+  verifyEmail,
   loginUser,
   passwordReset,
-} from '../../../authentication/authentication.module';
+} from '../../controllers/authentication/authentication.module';
 import {
   CreateUserValidator,
   forgotPasswordValidator,
@@ -18,7 +18,7 @@ import { resendOtpValidator } from '../../../validators/Auth.validation';
 
 const route = Router();
 
-route.post('/create-user', validate(CreateUserValidator), (req, res, next) => {
+route.post('/users', validate(CreateUserValidator), (req, res, next) => {
   createUser.createUser(req, res, next);
 });
 
@@ -26,8 +26,8 @@ route.post(
   '/verify-email',
   validate(verifyUserEmailValidator),
   (req, res, next) => {
-    verifyUserEmail.execute(req, res, next);
-  }
+    verifyEmail.execute(req, res, next);
+  },
 );
 
 route.post('/login', validate(LoginValidator), (req, res, next) => {
@@ -42,7 +42,7 @@ route.post(
   validate(RegenerateAccessToken),
   (req, res, next) => {
     loginUser.regenerateAccessToken(req, res, next);
-  }
+  },
 );
 
 route.post('/resend-otp', validate(resendOtpValidator), (req, res, next) => {
@@ -54,7 +54,7 @@ route.post(
   validate(forgotPasswordValidator),
   (req: Request, res: Response, next: NextFunction) => {
     passwordReset.sendResetPasswordEmail(req, res, next);
-  }
+  },
 );
 
 route.post(
@@ -62,7 +62,7 @@ route.post(
   validate(ResetPasswordValidator),
   (req: Request, res: Response, next: NextFunction) => {
     passwordReset.resetPassword(req, res, next);
-  }
+  },
 );
 
 export default route;

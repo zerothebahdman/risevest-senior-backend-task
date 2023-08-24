@@ -1,20 +1,21 @@
 import { NextFunction, Request, Response } from 'express';
-import AppException from '../exceptions/AppException';
-import EmailService from '../services/Email.service';
+import AppException from '../../../exceptions/AppException';
+import EmailService from '../../../services/Email.service';
 import TokenMustStillBeValid from './rules/TokenMustStillBeValid';
 import moment from 'moment';
-import EncryptionService from '../services/Encryption.service';
-import prisma from '../database/model.module';
-import { User } from '@prisma/client';
-import UserService from '../services/User.service';
+import EncryptionService from '../../../services/Encryption.service';
+import prisma from '../../../database/model.module';
+import UserService from '../../../services/User.service';
 import httpStatus from 'http-status';
-import HelperClass from '../utils/helper';
+import HelperClass from '../../../utils/helper';
+import AuthService from '../../../services/Auth.service';
 
 export default class PasswordReset {
   constructor(
     private readonly emailService: EmailService,
     private readonly encryptionService: EncryptionService,
     private readonly userService: UserService,
+    private readonly authService: AuthService,
   ) {}
 
   async sendResetPasswordEmail(
@@ -24,7 +25,7 @@ export default class PasswordReset {
   ) {
     try {
       const { email } = req.body;
-      const userExists: User = await this.userService.getUserByEmail(email);
+      const userExists = await this.userService.getUserByEmail(email);
       if (!userExists)
         return next(
           new AppException('Oops! User does not exist', httpStatus.NOT_FOUND),
@@ -33,25 +34,21 @@ export default class PasswordReset {
       const token = HelperClass.generateRandomChar(6, 'num');
       const hashedToken = await this.encryptionService.hashPassword(token);
 
-      const updateBody: any = {
-        password_reset_token: hashedToken,
-        password_reset_token_expires_at: moment()
-          .add(12, 'hours')
-          .utc()
-          .toDate(),
-      };
-
-      await this.userService.updateUserById(userExists.id, updateBody);
+      await this.authService.initiateResetPassword(userExists, hashedToken);
 
       await this.emailService._sendUserPasswordResetInstructionEmail(
-        userExists.fullName,
+        userExists.first_name,
         userExists.email,
         token,
       );
 
-      res.status(httpStatus.NO_CONTENT).send();
-    } catch (err: any) {
-      return next(new AppException(err.message, err.status));
+      res.status(httpStatus.OK).send({
+        status: 'success',
+        message: 'Password reset instruction has been sent to your email',
+      });
+    } catch (err: unknown) {
+      if (err instanceof Error)
+        return next(new AppException(err.message, httpStatus.BAD_REQUEST));
     }
   }
 
@@ -61,31 +58,28 @@ export default class PasswordReset {
         req.body.token,
       );
 
-      const user: User = await prisma.user.findFirst({
-        where: { password_reset_token: hashedToken },
+      const password_reset = await prisma.passwordReset.findFirst({
+        where: { token: hashedToken },
       });
 
-      if (!user) return TokenMustStillBeValid(next);
-      if (user.password_reset_token_expires_at < moment().utc().toDate())
+      if (!password_reset) return TokenMustStillBeValid(next);
+      if (password_reset.validUntil < moment().utc().toDate())
         throw new Error(`Oops!, your token has expired`);
       const hashedPassword = await this.encryptionService.hashPassword(
         req.body.password,
       );
 
-      const updateBody: any = {
+      await this.userService.updateUserById(password_reset.user_id, {
         password: hashedPassword,
-        password_reset_token: null,
-        password_reset_token_expires_at: null,
-      };
-
-      await this.userService.updateUserById(user.id, updateBody);
+      });
 
       res.status(httpStatus.OK).json({
         status: 'success',
         message: 'Password reset was successful',
       });
-    } catch (err: any) {
-      return next(new AppException(err.message, err.status));
+    } catch (err: unknown) {
+      if (err instanceof Error)
+        return next(new AppException(err.message, httpStatus.BAD_REQUEST));
     }
   }
 }

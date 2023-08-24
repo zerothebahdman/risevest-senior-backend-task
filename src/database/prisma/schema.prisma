@@ -2,8 +2,8 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider      = "prisma-client-js"
-  binaryTargets = ["rhel-openssl-1.0.x", "native"]
+  provider = "prisma-client-js"
+  // binaryTargets = ["rhel-openssl-1.0.x", "native"]
 }
 
 datasource db {
@@ -12,34 +12,91 @@ datasource db {
 }
 
 model User {
-  // id                           Int       @id @default(autoincrement())
-  id                              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  // id                String    @id @unique @default(uuid())
-  fullName                        String    @db.VarChar(255)
-  username                        String    @unique @db.VarChar(255)
-  email                           String    @unique @db.VarChar(255)
-  password                        String    @db.VarChar(255)
-  phoneNumber                     String    @db.VarChar(255)
-  gender                          Gender
-  businessName                    String?   @db.VarChar(255)
-  address                         String    @db.VarChar(255)
-  stateOfOrigin                   String    @db.VarChar(255)
-  referalCode                     String?   @unique @db.VarChar(255)
-  inviteCode                      String?   @unique @db.VarChar(255)
-  is_email_verified               Boolean?  @default(false)
-  email_verified_at               DateTime?
-  email_verification_token        String?   @db.VarChar(255)
-  email_verification_token_expiry DateTime?
-  password_reset_token            String?   @unique @db.VarChar(255)
-  password_reset_token_expires_at DateTime?
-  created_at                      DateTime  @default(now())
-  update_at                       DateTime? @updatedAt
-  deleted_at                      DateTime?
+  id                String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  first_name        String             @db.VarChar(255)
+  last_name         String             @db.VarChar(255)
+  email             String             @unique @db.VarChar(255)
+  password          String             @db.VarChar(255)
+  phoneNumber       String             @db.VarChar(255)
+  gender            Gender
+  verification      VerificationStatus @default(unverified)
+  created_at        DateTime           @default(now())
+  update_at         DateTime?          @updatedAt
+  deleted_at        DateTime?
+  EmailVerification EmailVerification?
+  PasswordReset     PasswordReset?
+  Post              Post[]
+  PostComment       PostComment[]
 
-  @@map("Users")
+  @@map("users")
+}
+
+model EmailVerification {
+  token      String   @id @db.Char(250)
+  user_id    String   @unique @db.Uuid
+  user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  validUntil DateTime @default(dbgenerated("(timezone('utc'::text, now()) + '1 day'::interval)")) @db.Timestamp(6)
+
+  @@map("email-verification")
+}
+
+model PasswordReset {
+  token      String   @id @db.Char(250)
+  user_id    String   @unique @db.Uuid
+  user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  validUntil DateTime @default(dbgenerated("(timezone('utc'::text, now()) + '1 day'::interval)")) @db.Timestamp(6)
+
+  @@map("password-reset")
+}
+
+model Post {
+  id               String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  body             String?       @db.VarChar(1000)
+  user             User?         @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  user_id          String?       @db.Uuid
+  post_type        PostType?
+  post_category_id String?       @db.Uuid
+  images           String[]
+  tags             String[]
+  location         String?
+  isApproved       Boolean?      @default(false)
+  isPostFlagged    Boolean?      @default(false)
+  isAnonymous      Boolean?      @default(false)
+  created_at       DateTime      @default(now())
+  update_at        DateTime?     @updatedAt
+  deleted_at       DateTime?
+  post_comment     PostComment[]
+
+  @@map("posts")
+}
+
+model PostComment {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  body       String    @db.VarChar(255)
+  user       User?     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  user_id    String?   @db.Uuid
+  Post       Post?     @relation(fields: [post_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  post_id    String?   @db.Uuid
+  created_at DateTime  @default(now())
+  update_at  DateTime? @updatedAt
+  deleted_at DateTime?
+
+  @@map("post_comments")
 }
 
 enum Gender {
   male
   female
+}
+
+enum VerificationStatus {
+  verified
+  unverified
+  deactivated
+}
+
+enum PostType {
+  image
+  text
+  text_image
 }

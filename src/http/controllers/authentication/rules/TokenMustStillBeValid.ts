@@ -1,5 +1,5 @@
 import { NextFunction } from 'express';
-import AppException from '../../exceptions/AppException';
+import AppException from '../../../../exceptions/AppException';
 import httpStatus from 'http-status';
 
 const TokenMustStillBeValid = (next: NextFunction) => {
