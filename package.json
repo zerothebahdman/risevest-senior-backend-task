@@ -8,7 +8,7 @@
   },
   "scripts": {
     "dev": "nodemon server.ts",
-    "build": "prisma generate --schema=./src/database/prisma/schema.prisma && tsc && cp -R ./src/database/prisma ./build/src/database/prisma && cd ./build/src/ && mkdir certs && cd certs/ && openssl genrsa -out private_key.pem 4096 && openssl rsa -pubout -in private_key.pem -out public_key.pem && cd ../ && prisma migrate deploy --schema=./database/prisma/schema.prisma",
+    "build": "prisma generate --schema=./src/database/prisma/schema.prisma && rimraf build && tsc && cp -R ./src/database/prisma ./build/src/database/prisma && cp -R ./src/certs ./build/src/certs && cd ./build/src && prisma migrate deploy --schema=./database/prisma/schema.prisma",
     "docker:build": "tsc",
     "start": "node build/server.js",
     "migrate:dev": "prisma migrate dev --schema=./src/database/prisma/schema.prisma",
