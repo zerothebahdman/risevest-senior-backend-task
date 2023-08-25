@@ -33,6 +33,7 @@ COPY . .
 COPY --from=development /usr/src/app/build ./build
 
 EXPOSE 8080
+
 RUN npx prisma generate
-RUN npx prisma migrate deploy
+
 CMD [ "node", "build/server.js" ]
