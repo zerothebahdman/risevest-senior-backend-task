@@ -6,6 +6,7 @@ import {
   CreatePostValidator,
   getPostValidator,
 } from '../../../validators/SocialPost.validator';
+import CachePosts from '../../middlewares/article_cache.middleware';
 
 const route = Router();
 
@@ -20,6 +21,7 @@ route
   )
   .get(
     isUserAuthenticated,
+    CachePosts,
     validate(getPostValidator),
     (req: Request, res: Response, next: NextFunction) => {
       postController.getPost(req, res, next);

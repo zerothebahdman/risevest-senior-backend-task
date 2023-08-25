@@ -6,7 +6,6 @@ import {
   CreateCommentValidator,
   getCommentValidator,
 } from '../../../validators/SocialPost.validator';
-
 const route = Router();
 
 route

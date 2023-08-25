@@ -60,11 +60,6 @@ export default class EmailService {
     log.info(`Email on it's way to ${email}`);
   }
 
-  async _sendWelcomeEmail(fullName: string, email: string) {
-    const url = `${config.FRONTEND_APP_URL}/sign-in`;
-    return await this._sendMail('WELCOME_EMAIL', email, { fullName, url });
-  }
-
   async _sendUserEmailVerificationEmail(
     fullName: string,
     email: string,

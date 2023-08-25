@@ -23,6 +23,7 @@ const envVarsSchema = Joi.object()
     MAIL_PASSWORD: Joi.string().required().label('Mail Password').required(),
     MAIL_HOST: Joi.string().required().label('Mail Host').required(),
     MAIL_PORT: Joi.number().required().label('Mail Port').required(),
+    REDIS_URL: Joi.string().required().label('Redis URL').required(),
   })
   .unknown();
 const { value: envVars, error } = envVarsSchema
@@ -35,7 +36,6 @@ if (error) {
 
 export default {
   env: envVars.NODE_ENV,
-  FRONTEND_APP_URL: envVars.FRONTEND_APP_URL,
   DATABASE_URL: envVars.DATABASE_URL,
   port: envVars.PORT,
   appName: envVars.APP_NAME,
@@ -46,19 +46,9 @@ export default {
   MAIL_PASSWORD: envVars.MAIL_PASSWORD,
   MAIL_USER: envVars.MAIL_USER,
   MAIL_PORT: envVars.MAIL_PORT,
-  concurrency: parseInt(envVars.QUEUE_CONCURRENCY || '1'),
-  emailQueueName: envVars.QUEUE_NAME || 'agsaap',
   connection: {
     host: envVars.REDIS_HOST,
     port: parseInt(envVars.REDIS_PORT || '6379'),
   },
-  cloudinary: {
-    cloudName: envVars.CLOUDINARY_NAME,
-    apiKey: envVars.CLOUDINARY_API_KEY,
-    apiSecret: envVars.CLOUDINARY_API_SECRET,
-  },
-  cronSchedule: {
-    deleteUserAccountIfNotVerified:
-      envVars.CRON_SCHEDULE_DELETE_USER_ACCOUNT_IF_NOT_VERIFIED,
-  },
+  redisUrl: envVars.REDIS_URL,
 };

@@ -1,4 +1,4 @@
-# NodeJS Postgres
+# Risevest Backend Challenge
 
 ## Requirements
 
@@ -37,16 +37,64 @@ randompassword : The password of the database
 - To migrate the database tables from prisma use `npx prisma migrate dev --name init --schema=./src/database/prisma/schema.prisma`
 - To view your database on your browser use prisma studio `npx prisma studio --schema=./src/database/prisma/schema.prisma`
 
-  ***
+### Query Optimization Task
 
-**Note**
-If you have discovered a bug or have a feature suggestion, feel free to create an issue on [Github](https://github.com/zerothebahdman/node-postgres/issues).
+- Optimize the following query
 
-## Making contributions
+```sql
+SELECT users.id, users.name, posts.title, comments.content
+FROM users
+LEFT JOIN posts ON users.id = posts.userId
+LEFT JOIN comments ON posts.id = comments.postId
+WHERE comments.createdAt = (SELECT MAX(createdAt) FROM comments WHERE postId = posts.id)
+ORDER BY (SELECT COUNT(posts.id) FROM posts WHERE posts.userId = users.id) DESC
+LIMIT 3;
+```
 
-[Checkout the contributions guidelines](https://github.com/zerothebahdman/node-postgres/blob/main/CONTRIBUTION.md)
+- The optimized query is as follows
 
-Dont forget to star or fork this if you like it
+```sql
+WITH LatestComments AS (
+    SELECT
+        postId,
+        MAX(createdAt) AS latestCommentDate
+    FROM comments
+    GROUP BY postId
+),
+UserPostCounts AS (
+    SELECT
+        userId,
+        COUNT(id) AS postCount
+    FROM posts
+    GROUP BY userId
+)
+SELECT
+    users.id,
+    users.name,
+    posts.title,
+    comments.content
+FROM
+    users
+LEFT JOIN
+    UserPostCounts ON users.id = UserPostCounts.userId
+LEFT JOIN
+    posts ON users.id = posts.userId
+LEFT JOIN
+    comments ON posts.id = comments.postId
+    AND comments.createdAt = LatestComments.latestCommentDate
+WHERE
+    UserPostCounts.postCount IS NOT NULL
+ORDER BY
+    UserPostCounts.postCount DESC
+LIMIT 3;
+```
+
+- Break down of the optimized query :-
+  - Subquery Reduction: The optimized query reduces the number of subqueries from two to one. This leads to better query optimization because subqueries can be resource-intensive, especially when executed within the context of the main query.
+  - JOINs: The optimized query uses a combination of JOIN statements to link the tables. This approach generally performs better than subqueries, as the database optimizer can create more efficient execution plans.
+  - Use of Aggregate Functions: Instead of using a correlated subquery to find the maximum createdAt value for each postId, the optimized query uses an aggregate function (MAX) in a subquery to achieve the same result. Aggregate functions are generally more optimized for this kind of calculation.
+  - We use two common table expressions (CTEs) to calculate the latest comment date for each post (LatestComments) and the post count for each user (UserPostCounts).
+  - Then, we perform the main SELECT query, joining the users table with the UserPostCounts CTE to ensure that we only select users with posts. We left join with posts and comments tables and use the LatestComments CTE to filter comments with the latest date.
 
 ### License
 
