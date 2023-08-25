@@ -16,6 +16,8 @@ export default class LoginUser {
     private readonly emailService: EmailService,
   ) {}
   async _loginUser(req: Request, res: Response, next: NextFunction) {
+    console.log(req.body);
+
     try {
       const _userExists = await this.userService.getUserByEmail(req.body.email);
 

@@ -1,5 +1,8 @@
 import { Router, Request, Response, NextFunction } from 'express';
-import { postController } from '../../controllers/controllers.module';
+import {
+  postController,
+  userController,
+} from '../../controllers/controllers.module';
 import { isUserAuthenticated } from '../../middlewares/auth.middleware';
 import validate from '../../middlewares/validate';
 import {
@@ -27,5 +30,9 @@ route
       postController.getPost(req, res, next);
     },
   );
+
+route.get('/', (req, res, next) =>
+  userController.getSingleUser(req, res, next),
+);
 
 export default route;

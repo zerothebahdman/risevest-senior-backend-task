@@ -6,6 +6,7 @@ import prisma from '../../../database/model.module';
 import AuthService from '../../../services/Auth.service';
 import EncryptionService from '../../../services/Encryption.service';
 import HelperClass from '../../../utils/helper';
+import config from '../../../../config/default';
 const emailService = new EmailService();
 
 export default class CreateUser {
@@ -29,13 +30,15 @@ export default class CreateUser {
       delete req.body.confirmPassword;
       const user = await this.authService.createUser(req.body, hashedToken);
       /** Send email verification to user */
-      await emailService._sendUserEmailVerificationEmail(
-        user.first_name,
-        user.email,
-        token,
-      );
+      if (config.env === 'production') {
+        await emailService._sendUserEmailVerificationEmail(
+          user.first_name,
+          user.email,
+          token,
+        );
+      }
 
-      return res.status(httpStatus.OK).json({
+      return res.status(httpStatus.CREATED).json({
         status: 'success',
         message: `We've sent an verification email to your mail`,
         user,

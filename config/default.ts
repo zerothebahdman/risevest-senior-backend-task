@@ -24,6 +24,7 @@ const envVarsSchema = Joi.object()
     MAIL_HOST: Joi.string().required().label('Mail Host').required(),
     MAIL_PORT: Joi.number().required().label('Mail Port').required(),
     REDIS_URL: Joi.string().required().label('Redis URL').required(),
+    APP_URL: Joi.string().required().label('App URL').required(),
   })
   .unknown();
 const { value: envVars, error } = envVarsSchema
@@ -51,4 +52,5 @@ export default {
     port: parseInt(envVars.REDIS_PORT || '6379'),
   },
   redisUrl: envVars.REDIS_URL,
+  appUrl: envVars.APP_URL,
 };
