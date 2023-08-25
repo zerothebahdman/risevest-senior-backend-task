@@ -10,11 +10,11 @@ CREATE TYPE "PostType" AS ENUM ('image', 'text', 'text_image');
 -- CreateTable
 CREATE TABLE "users" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
-    "first_name" VARCHAR(255) NOT NULL,
-    "last_name" VARCHAR(255) NOT NULL,
-    "email" VARCHAR(255) NOT NULL,
-    "password" VARCHAR(255) NOT NULL,
-    "phoneNumber" VARCHAR(255) NOT NULL,
+    "first_name" VARCHAR(50) NOT NULL,
+    "last_name" VARCHAR(50) NOT NULL,
+    "email" VARCHAR(50) NOT NULL,
+    "password" TEXT NOT NULL,
+    "phoneNumber" VARCHAR(50) NOT NULL,
     "gender" "Gender" NOT NULL,
     "verification" "VerificationStatus" NOT NULL DEFAULT 'unverified',
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -26,7 +26,7 @@ CREATE TABLE "users" (
 
 -- CreateTable
 CREATE TABLE "email-verification" (
-    "token" CHAR(250) NOT NULL,
+    "token" TEXT NOT NULL,
     "user_id" UUID NOT NULL,
     "validUntil" TIMESTAMP(6) NOT NULL DEFAULT (timezone('utc'::text, now()) + '1 day'::interval),
 
@@ -35,7 +35,7 @@ CREATE TABLE "email-verification" (
 
 -- CreateTable
 CREATE TABLE "password-reset" (
-    "token" CHAR(250) NOT NULL,
+    "token" TEXT NOT NULL,
     "user_id" UUID NOT NULL,
     "validUntil" TIMESTAMP(6) NOT NULL DEFAULT (timezone('utc'::text, now()) + '1 day'::interval),
 
@@ -45,16 +45,10 @@ CREATE TABLE "password-reset" (
 -- CreateTable
 CREATE TABLE "posts" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
-    "body" VARCHAR(1000),
+    "body" TEXT,
     "user_id" UUID,
     "post_type" "PostType",
-    "post_category_id" UUID,
     "images" TEXT[],
-    "tags" TEXT[],
-    "location" TEXT,
-    "isApproved" BOOLEAN DEFAULT false,
-    "isPostFlagged" BOOLEAN DEFAULT false,
-    "isAnonymous" BOOLEAN DEFAULT false,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "update_at" TIMESTAMP(3),
     "deleted_at" TIMESTAMP(3),
@@ -65,7 +59,7 @@ CREATE TABLE "posts" (
 -- CreateTable
 CREATE TABLE "post_comments" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
-    "body" VARCHAR(255) NOT NULL,
+    "body" TEXT NOT NULL,
     "user_id" UUID,
     "post_id" UUID,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,

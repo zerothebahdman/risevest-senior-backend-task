@@ -13,11 +13,11 @@ datasource db {
 
 model User {
   id                String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  first_name        String             @db.VarChar(255)
-  last_name         String             @db.VarChar(255)
-  email             String             @unique @db.VarChar(255)
-  password          String             @db.VarChar(255)
-  phoneNumber       String             @db.VarChar(255)
+  first_name        String             @db.VarChar(50)
+  last_name         String             @db.VarChar(50)
+  email             String             @unique @db.VarChar(50)
+  password          String             @db.Text()
+  phoneNumber       String             @db.VarChar(50)
   gender            Gender
   verification      VerificationStatus @default(unverified)
   created_at        DateTime           @default(now())
@@ -28,11 +28,12 @@ model User {
   Post              Post[]
   PostComment       PostComment[]
 
+  @@index([email], name: "idx_users_email")
   @@map("users")
 }
 
 model EmailVerification {
-  token      String   @id @db.Char(250)
+  token      String   @id @db.Text()
   user_id    String   @unique @db.Uuid
   user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
   validUntil DateTime @default(dbgenerated("(timezone('utc'::text, now()) + '1 day'::interval)")) @db.Timestamp(6)
@@ -41,7 +42,7 @@ model EmailVerification {
 }
 
 model PasswordReset {
-  token      String   @id @db.Char(250)
+  token      String   @id @db.Text()
   user_id    String   @unique @db.Uuid
   user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
   validUntil DateTime @default(dbgenerated("(timezone('utc'::text, now()) + '1 day'::interval)")) @db.Timestamp(6)
@@ -50,29 +51,24 @@ model PasswordReset {
 }
 
 model Post {
-  id               String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  body             String?       @db.VarChar(1000)
-  user             User?         @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  user_id          String?       @db.Uuid
-  post_type        PostType?
-  post_category_id String?       @db.Uuid
-  images           String[]
-  tags             String[]
-  location         String?
-  isApproved       Boolean?      @default(false)
-  isPostFlagged    Boolean?      @default(false)
-  isAnonymous      Boolean?      @default(false)
-  created_at       DateTime      @default(now())
-  update_at        DateTime?     @updatedAt
-  deleted_at       DateTime?
-  post_comment     PostComment[]
+  id           String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  body         String?       @db.Text()
+  user         User?         @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  user_id      String?       @db.Uuid
+  post_type    PostType?
+  images       String[]
+  created_at   DateTime      @default(now())
+  update_at    DateTime?     @updatedAt
+  deleted_at   DateTime?
+  post_comment PostComment[]
 
+  @@index([user_id])
   @@map("posts")
 }
 
 model PostComment {
   id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  body       String    @db.VarChar(255)
+  body       String    @db.Text()
   user       User?     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   user_id    String?   @db.Uuid
   Post       Post?     @relation(fields: [post_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
@@ -81,6 +77,9 @@ model PostComment {
   update_at  DateTime? @updatedAt
   deleted_at DateTime?
 
+  @@index([user_id])
+  @@index([post_id])
+  @@index([created_at])
   @@map("post_comments")
 }
 
