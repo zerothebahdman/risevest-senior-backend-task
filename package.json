@@ -16,7 +16,7 @@
     "migrate:prod": "prisma migrate deploy",
     "generate": "prisma generate",
     "test": "jest --runInBand --detectOpenHandles --forceExit",
-    "start:migrate:prod": "prisma migrate deploy && node build/server.js"
+    "start:migrate:prod": "ls && prisma migrate deploy && node build/server.js"
   },
   "keywords": [],
   "author": "",
