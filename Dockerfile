@@ -33,5 +33,5 @@ COPY . .
 COPY --from=development /usr/src/app/build ./build
 
 EXPOSE 8080
-
+RUN npx prisma generate
 CMD [ "node", "build/server.js" ]
