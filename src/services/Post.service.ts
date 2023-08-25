@@ -1,7 +1,9 @@
 import prisma from '../database/model.module';
 import { Post, PostComment } from '@prisma/client';
 import paginate from '../utils/paginate';
-
+import RedisClient from '../utils/redis';
+import config from '../../config/default';
+const redis = new RedisClient(config.redisUrl);
 export default class PostService {
   async getAllPost(
     filter: Partial<Post>,
@@ -25,6 +27,7 @@ export default class PostService {
     const data = ignorePagination
       ? await prisma.post.findMany({ where: { user_id: filter.user_id } })
       : await paginate<Post, typeof prisma.post>(filter, options, prisma.post);
+    redis.set('posts', JSON.stringify(data));
     return data;
   }
 

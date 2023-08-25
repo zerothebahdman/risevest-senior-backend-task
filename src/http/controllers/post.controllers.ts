@@ -2,7 +2,7 @@
 import { NextFunction, Response } from 'express';
 import { RequestType } from '../middlewares/auth.middleware';
 import AppException from '../../exceptions/AppException';
-import PostService from '../../services/Social.service';
+import PostService from '../../services/Post.service';
 import httpStatus from 'http-status';
 import pick from '../../utils/pick';
 
