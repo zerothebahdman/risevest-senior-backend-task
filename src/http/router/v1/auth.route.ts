@@ -15,12 +15,18 @@ import {
 } from '../../../validators/Auth.validation';
 import validate from '../../middlewares/validate';
 import { resendOtpValidator } from '../../../validators/Auth.validation';
+import { userController } from '../../controllers/controllers.module';
 
 const route = Router();
 
-route.post('/users', validate(CreateUserValidator), (req, res, next) => {
-  createUser.createUser(req, res, next);
-});
+route
+  .route('/users')
+  .post(validate(CreateUserValidator), (req, res, next) => {
+    createUser.createUser(req, res, next);
+  })
+  .get((req, res, next) => {
+    userController.getAllUsers(req, res, next);
+  });
 
 route.post(
   '/verify-email',

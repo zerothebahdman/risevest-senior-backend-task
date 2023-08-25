@@ -3,26 +3,35 @@ import { postController } from '../../controllers/controllers.module';
 import { isUserAuthenticated } from '../../middlewares/auth.middleware';
 import validate from '../../middlewares/validate';
 import {
-  CreatePostValidator,
-  getPostValidator,
+  CreateCommentValidator,
+  getCommentValidator,
 } from '../../../validators/SocialPost.validator';
 
 const route = Router();
 
 route
-  .route('/:user_id/posts')
+  .route('/:post_id/comments')
   .post(
     isUserAuthenticated,
-    validate(CreatePostValidator),
+    validate(CreateCommentValidator),
     (req: Request, res: Response, next: NextFunction) => {
-      postController.createPost(req, res, next);
+      postController.createComment(req, res, next);
     },
   )
   .get(
     isUserAuthenticated,
-    validate(getPostValidator),
+    validate(getCommentValidator),
     (req: Request, res: Response, next: NextFunction) => {
-      postController.getPost(req, res, next);
+      postController.getPostComment(req, res, next);
+    },
+  );
+
+route
+  .route('/top-users-posts')
+  .get(
+    isUserAuthenticated,
+    (req: Request, res: Response, next: NextFunction) => {
+      postController.getTopUserPost(req, res, next);
     },
   );
 
