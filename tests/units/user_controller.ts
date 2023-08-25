@@ -2,7 +2,7 @@ import request from 'supertest';
 import app from '../../src/http/app';
 import { describe, expect } from '@jest/globals';
 import httpStatus from 'http-status';
-import prisma from '../../src/database/model.module';
+import prisma from '../../src/index.prisma';
 
 describe('Users Controller', () => {
   afterAll(async () => {

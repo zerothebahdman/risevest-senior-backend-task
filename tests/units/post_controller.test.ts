@@ -2,11 +2,11 @@ import axios from 'axios';
 // import app from '../../src/http/app';
 import { describe, expect } from '@jest/globals';
 import httpStatus from 'http-status';
-import prisma from '../../src/database/model.module';
 import HelperClass from '../../src/utils/helper';
 import bcrypt from 'bcrypt';
 // import { server } from '../../server';
 import config from '../../config/default';
+import prisma from '../../src/index.prisma';
 
 describe('Api Endpoints', () => {
   let createdUser: any;
@@ -15,7 +15,6 @@ describe('Api Endpoints', () => {
 
   beforeAll(async () => {
     process.env.NODE_ENV = 'test';
-    // process.env.PORT = '3000';
     createdUser = await prisma.user.create({
       data: {
         first_name: 'John',
@@ -42,15 +41,15 @@ describe('Api Endpoints', () => {
         password: 'Test@1234',
       },
     );
-    console.log('Response', loginResponse);
+
     const data = loginResponse.data;
     authToken = data.token.accessToken;
   });
-  afterAll(() => {
+  afterAll(async () => {
     // Stop the server after testing
     process.env.NODE_ENV = 'production';
+    await prisma.$disconnect();
   });
-
   // Test creating a new post for a user
   it('should create a new post for a user', async () => {
     const user_id = createdUser.id;

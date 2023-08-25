@@ -2,11 +2,11 @@ import { Request, Response, NextFunction } from 'express';
 import AppException from '../../../exceptions/AppException';
 import EmailService from '../../../services/Email.service';
 import httpStatus from 'http-status';
-import prisma from '../../../database/model.module';
 import AuthService from '../../../services/Auth.service';
 import EncryptionService from '../../../services/Encryption.service';
 import HelperClass from '../../../utils/helper';
 import config from '../../../../config/default';
+import prisma from '../../../index.prisma';
 const emailService = new EmailService();
 
 export default class CreateUser {

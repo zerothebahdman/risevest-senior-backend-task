@@ -1,7 +1,7 @@
 import TokenService from './Token.service';
-import prisma from '../database/model.module';
 import { User } from '@prisma/client';
 import { JwtPayload } from 'jsonwebtoken';
+import prisma from '../index.prisma';
 
 export default class AuthService {
   constructor(private readonly tokenService: TokenService) {}

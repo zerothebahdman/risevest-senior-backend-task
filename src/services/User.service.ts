@@ -1,6 +1,6 @@
-import prisma from '../database/model.module';
 import { User } from '@prisma/client';
 import paginate from '../utils/paginate';
+import prisma from '../index.prisma';
 
 export default class UserService {
   async getAllUsers(

@@ -2,10 +2,10 @@
 import { NextFunction, Request, Response } from 'express';
 import AppException from '../../../exceptions/AppException';
 import moment from 'moment';
-import prisma from '../../../database/model.module';
 import httpStatus from 'http-status';
 import EncryptionService from '../../../services/Encryption.service';
 import { VerificationStatus } from '@prisma/client';
+import prisma from '../../../index.prisma';
 
 export default class VerifyEmailClass {
   constructor(private readonly encryptionService: EncryptionService) {}

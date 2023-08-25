@@ -3,11 +3,11 @@ import AppException from '../../../exceptions/AppException';
 import EmailService from '../../../services/Email.service';
 import moment from 'moment';
 import EncryptionService from '../../../services/Encryption.service';
-import prisma from '../../../database/model.module';
 import UserService from '../../../services/User.service';
 import httpStatus from 'http-status';
 import HelperClass from '../../../utils/helper';
 import AuthService from '../../../services/Auth.service';
+import prisma from '../../../index.prisma';
 
 export default class PasswordReset {
   constructor(

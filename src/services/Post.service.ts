@@ -1,8 +1,8 @@
-import prisma from '../database/model.module';
 import { Post, PostComment } from '@prisma/client';
 import paginate from '../utils/paginate';
 import RedisClient from '../utils/redis';
 import config from '../../config/default';
+import prisma from '../index.prisma';
 const redis = new RedisClient(config.redisUrl);
 export default class PostService {
   async getAllPost(
