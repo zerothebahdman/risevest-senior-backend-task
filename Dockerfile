@@ -37,4 +37,4 @@ EXPOSE 1111
 
 RUN npx prisma generate
 
-CMD [ "yarn", "start:migrate:prod" ]
+CMD [ "npm", "run", "start:migrate:prod" ]
