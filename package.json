@@ -8,7 +8,7 @@
   },
   "scripts": {
     "dev": "nodemon server.ts",
-    "build": "prisma generate && rimraf build && tsc && cp -R ./src/certs ./build/src/certs && cd prisma migrate deploy",
+    "build": "prisma generate && rimraf build && tsc && prisma generate && cp -R ./src/certs ./build/src/certs && cd prisma migrate deploy",
     "docker:build": "tsc",
     "start": "node build/server.js",
     "migrate:dev": "prisma migrate dev",
